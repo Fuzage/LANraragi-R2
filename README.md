@@ -2,6 +2,18 @@
 
 [中文](README.md) · [English](README.en.md)
 
+## 配套 iOS 客户端：LanR2der
+
+<a href="https://github.com/Fuzage/LanR2der"><img src="https://raw.githubusercontent.com/Fuzage/LanR2der/main/assets/AppIcon-transparent.png" alt="LanR2der" width="72"></a>
+
+在 iPhone 上连接本修改版书库，使用**拟物书架、R2 阅读、整本离线下载、App 内上传、元数据与分类编辑，以及隐私密码和 Face ID**。首次打开填写自己的服务器地址和 API Key。
+
+**[了解 LanR2der](https://github.com/Fuzage/LanR2der) · [下载最新版 IPA](https://github.com/Fuzage/LanR2der/releases/latest)**
+
+要求 **iOS 26.0+**；IPA 未签名，需要自行签名安装。详细配置和使用方式见客户端仓库。
+
+---
+
 基于 [LANraragi 0.9.81](https://github.com/Difegue/LANraragi/tree/v.0.9.81) 的社区修改版，为原生上传页和阅读器加入 **Cloudflare R2 直传与按页读取**，降低漫画大图对 VPS 带宽和本地磁盘的占用。每位使用者填写自己的 Cloudflare 账号、桶和 S3 密钥。
 
 每次翻页仍会请求对应的页范围；整包直传减少上传请求数量，不代表阅读请求计费消失。存储、读写请求和免费额度请以 Cloudflare 的实际账单与价格说明为准。

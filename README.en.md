@@ -2,6 +2,18 @@
 
 [中文](README.md) · [English](README.en.md)
 
+## Companion iOS app: LanR2der
+
+<a href="https://github.com/Fuzage/LanR2der"><img src="https://raw.githubusercontent.com/Fuzage/LanR2der/main/assets/AppIcon-transparent.png" alt="LanR2der" width="72"></a>
+
+Connect your iPhone to this server for a **local bookshelf, R2 reading, whole-book offline downloads, in-app uploads, metadata/category editing, and PIN/Face ID privacy controls**. Enter your own server address and API Key on first launch.
+
+**[Explore LanR2der](https://github.com/Fuzage/LanR2der) · [Download the latest IPA](https://github.com/Fuzage/LanR2der/releases/latest)**
+
+Requires **iOS 26.0+**. The IPA is unsigned and must be signed before installation. Setup and usage instructions are available in the app repository.
+
+---
+
 A community modification of [LANraragi 0.9.81](https://github.com/Difegue/LANraragi/tree/v.0.9.81) that adds **direct Cloudflare R2 uploads and page-range reading** to the native upload page and web reader. Each deployment uses its owner's R2 account, private bucket and S3 credentials.
 
 Each page read still requests its byte range. Bundling reduces upload requests, not the number of page-read operations. Storage, operations and included usage remain subject to Cloudflare's pricing and your account billing.
