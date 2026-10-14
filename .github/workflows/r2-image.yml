@@ -31,6 +31,8 @@ jobs:
         run: |
           docker run --rm --entrypoint /bin/sh lanraragi-r2:check -c 'cd /home/koyomi/lanraragi && perl -Mlocal::lib=/home/koyomi/perl5 -Ilib -c lib/LANraragi/Controller/R2Settings.pm'
           docker run --rm --entrypoint /bin/sh -v "$PWD/tests:/checks:ro" lanraragi-r2:check -c 'cd /home/koyomi/lanraragi && perl -Mlocal::lib=/home/koyomi/perl5 -Ilib /checks/r2-settings.t'
+      - name: Check settings JavaScript
+        run: docker run --rm -v "$PWD:/code:ro" -w /code node:22-alpine node --check public/js/r2-settings.js
       - uses: docker/login-action@v4
         with:
           registry: ghcr.io

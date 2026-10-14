@@ -4,6 +4,8 @@
 
 A community modification of [LANraragi 0.9.81](https://github.com/Difegue/LANraragi/tree/v.0.9.81) that adds **direct Cloudflare R2 uploads and page-range reading** to the native upload page and web reader. Each deployment uses its owner's R2 account, private bucket and S3 credentials.
 
+Each page read still requests its byte range. Bundling reduces upload requests, not the number of page-read operations. Storage, operations and included usage remain subject to Cloudflare's pricing and your account billing.
+
 This is not an official LANraragi release. The base version stays at **0.9.81**; the image's `latest` tag means the latest build of this modification, not automatic upgrades to upstream LANraragi.
 
 ## What has changed
