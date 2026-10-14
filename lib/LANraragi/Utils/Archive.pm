@@ -170,6 +170,13 @@ sub get_filelist ($archive, $arcid) {
             my $filesize = ( $e->size_is_set eq 64 ) ? $e->size : 0;
             my $filename = $e->pathname;
 
+            # R2-backed descriptor CBZ files carry hidden page-thumbnail and
+            # manifest entries. They must never appear as reading pages.
+            if ( $filename =~ m{\A__r2_(?:thumbs/|manifest\.)} ) {
+                $r->read_data_skip;
+                next;
+            }
+
             unless ( is_image($filename) ) {
                 $r->read_data_skip;
                 next;

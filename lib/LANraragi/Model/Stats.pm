@@ -115,6 +115,15 @@ sub build_stat_hashes {
 
     foreach my $id (@keys) {
 
+        # Ignore partial Redis hashes left behind by interrupted operations.
+        # They have no title, cannot be rendered as archives, and would leave
+        # LRR_TANKGROUPED out of sync with LRR_TITLES after a rebuild.
+        my $title = $redis->hget( $id, "title" );
+        unless ( defined $title && length $title ) {
+            $logger->warn("Skipping incomplete archive record $id while rebuilding search indexes (missing title).");
+            next;
+        }
+
         $redistx->sadd( "LRR_TANKGROUPED", $id );
         my $has_tags = index_tags_for_id( $redis, $redistx, $id, $id );
 

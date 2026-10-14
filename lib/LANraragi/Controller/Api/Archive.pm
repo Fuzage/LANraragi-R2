@@ -16,6 +16,7 @@ use LANraragi::Utils::Database qw(get_archive_json set_isnew);
 use LANraragi::Utils::Logging  qw(get_logger);
 use LANraragi::Utils::Redis    qw(redis_encode);
 use LANraragi::Utils::Path     qw(compat_path get_archive_path move_path);
+use LANraragi::Model::R2       qw(is_enabled sign_get_url get_archive_manifest);
 
 use LANraragi::Utils::Login qw(is_logged_in_api);
 
@@ -101,6 +102,14 @@ sub serve_file {
     my $self  = shift->openapi->valid_input or return;
     my $id    = $self->stash('id');
     my $redis = $self->LRR_CONF->get_redis;
+
+    my $remote_manifest = get_archive_manifest($redis, $id);
+    if ( $remote_manifest && $remote_manifest->{state} eq 'ready' ) {
+        $redis->quit();
+        return $self->redirect_to(sign_get_url($remote_manifest->{sourceKey}))
+          if $remote_manifest->{sourceKey};
+        return $self->render(text => '此 R2 漫画只保存了 WebP 阅读页，没有原始 PDF/ZIP 文件。', status => 404);
+    }
 
     my $file = get_archive_path( $redis, $id );
     $redis->quit();
@@ -321,7 +330,15 @@ sub delete_archive {
         "delete_archive",
         $id,
         sub {
-            my $delStatus = LANraragi::Model::Archive::delete_archive($id);
+            my $delStatus;
+            eval { $delStatus = LANraragi::Model::Archive::delete_archive($id); 1 } or do {
+                my $error = $@ || '删除失败。';
+                $self->LRR_LOGGER->error("Archive deletion failed for $id: $error");
+                return $self->render(json => {
+                    operation => 'delete_archive', id => $id, success => 0,
+                    error => 'R2 清理未完成，档案记录已保留，可重新点击删除。',
+                }, status => 502);
+            };
 
             $self->render(
                 openapi => {
@@ -331,7 +348,8 @@ sub delete_archive {
                     success   => $delStatus eq "0" ? 0 : 1
                 }
             );
-        }
+        },
+        1800
     );
 }
 

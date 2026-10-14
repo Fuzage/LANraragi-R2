@@ -18,6 +18,7 @@
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/ReactToastify.min.css") %]" />
 	<link rel="stylesheet" type="text/css" href="[% c.url_for("/css/vendor/sweetalert2.min.css") %]" />
 	[% csshead %]
+	<link rel="stylesheet" href="[% c.url_for("/css/r2-upload.css?v=20261012") %]" />
 
 	[% INCLUDE common/importmap %]
 
@@ -26,23 +27,25 @@
 	<script src="[% c.url_for("/js/vendor/jquery.fileupload.js") %]" type="text/JAVASCRIPT"></script>
 
 	<script type="module">
-		import { initializeAll } from "[% c.url_for("/js/upload.js?$version") %]";
+                import { initializeAll } from "[% c.url_for("/js/upload.js?$version&r2=bundle-20261012") %]";
 		jQuery(() => {
 			initializeAll();
 		});
 	</script>
+	<script type="module" src="[% c.url_for("/r2-import/native.js?v=20261012-bundle") %]" onerror="document.getElementById('r2-loading').textContent='R2 导入器加载失败，请刷新页面重试。'"></script>
 </head>
 
-<body>
+<body class="native-upload">
 
 	<div class='ido' style='text-align:center; font-size:8pt'>
 		<h1 class='ih' style='text-align:center'>[% c.lh("Adding Archives to the Library") %]</h1>
 
 		[% c.lh("Add files to your LANraragi instance from your computer, or the Internet directly.") %]<br><br>
 
-		<div style="margin-left:auto; margin-right:auto">
+		<div class="upload-layout">
 
 			<div class="left-column">
+				<p><a href="[% c.url_for("/r2-import/") %]" target="_blank" rel="noopener">打开独立 R2 导入器</a></p>
 
 				[% c.lh("Add uploaded files to category:") %]
 				<select id="category" class="favtag-btn">
@@ -50,18 +53,45 @@
 					[% FOREACH categories %]
 					<option value="[% id %]">[% name | html %]</option>
 					[% END %]
-				</select> <br><br>
+				</select>
+                <button id="new-category-toggle" class="stdbtn" type="button">新建分类</button>
+                <form id="new-category-form" hidden>
+                    <label for="new-category-name">分类名称</label>
+                    <input id="new-category-name" class="stdinput" type="text" maxlength="200" autocomplete="off" required />
+                    <div><button id="new-category-save" class="stdbtn" type="submit">创建并选中</button>
+                    <button id="new-category-cancel" class="stdbtn" type="button">取消</button></div>
+                    <p id="new-category-status" role="status"></p>
+                </form>
+                <br><br>
 
 				<h1 class='ih'>[% c.lh("From your computer") %]</h1>
 
-				[% c.lh("You can drag and drop files into this window, or click the upload button.") %]
-				<br><br>
-
-				<span class='stdbtn fileinput-button' style="height:50px;">
-					<i class='fas fa-download fa-2x' style='padding-top:6px; padding-bottom: 5px'></i><br>
-					<span>[% c.lh("Add from your computer") %]</span>
-					<input type='file' name='file' multiple id='fileupload'>
-				</span>
+                <p>支持多选文件，每个文件单独建立档案。</p>
+                <span class="stdbtn fileinput-button native-upload-button">
+                    <i class="fas fa-cloud-upload-alt fa-2x" aria-hidden="true"></i>
+                    <span>上传到 R2</span>
+                    <input type="file" id="r2-fileupload" multiple disabled accept=".pdf,.zip,.cbz,.jpg,.jpeg,.png,.webp,application/pdf,application/zip,image/jpeg,image/png,image/webp" aria-label="选择要上传到 R2 的文件" />
+                </span>
+                <p id="r2-loading" role="status">正在加载 R2 导入器…</p>
+                <p class="upload-hint">每本漫画打成一个数据包直传 R2，页图保持原格式；上传期间请保持页面打开。</p>
+                <details class="r2-options">
+                    <summary>R2 处理选项</summary>
+                    <label for="r2-dpi">PDF 无法提取整页内嵌图时的 DPI</label>
+                    <select id="r2-dpi" class="favtag-btn"><option value="300">300 DPI</option><option value="450">450 DPI</option><option value="600">600 DPI</option></select>
+                    <label for="r2-parallelism">同时处理页数</label>
+                    <select id="r2-parallelism" class="favtag-btn"><option value="2">2 页</option><option value="1">1 页（更省内存）</option></select>
+                    <label for="r2-upload-concurrency">同时上传本数</label>
+                    <select id="r2-upload-concurrency" class="favtag-btn"><option value="2" selected>2 本并行（电脑推荐）</option><option value="1">1 本（更省内存）</option></select>
+                </details>
+                <br>
+                <span class="stdbtn fileinput-button native-upload-button">
+                    <i class="fas fa-download fa-2x" aria-hidden="true"></i>
+                    <span>上传到 VPS</span>
+                    <input type="file" name="file" multiple id="fileupload" aria-label="选择要上传到 VPS 的文件" />
+                </span>
+                <p class="upload-hint">原档案上传到 VPS 本地存储。</p>
+                <label for="drop-destination">也可将文件拖放到页面，上传到：</label>
+                <select id="drop-destination" class="favtag-btn"><option value="r2">R2</option><option value="vps">VPS</option></select>
 
 				<br><br>
 				<h1 class='ih'>[% c.lh("From the Internet") %]</h1>
@@ -75,7 +105,7 @@
 
 				<label for="download_url">[% c.lh("URL(s) to download:") %]</label>
 				<textarea type="text" name="urls" id="urlForm"
-					style="width: 400px; height: 100px; white-space: pre;"></textarea>
+					style="width: 100%; height: 130px; white-space: pre;"></textarea>
 				<br><br>
 
 
@@ -91,7 +121,7 @@
 				<h2 class="ih" id="progressCount"></h2>
 				<h2 class="ih" id="progressTotal"></h2>
 
-				<table style='margin:auto; font-size:9pt; width: 80%; text-align:center;'>
+				<table class='upload-result-table'>
 					<tbody id='files'>
 						<tr>
 							<td colspan=2>

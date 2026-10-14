@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f7fb" />
+    <title>LANraragi R2 导入器</title>
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <p class="eyebrow">LANraragi · R2 导入器</p>
+        <h1>漫画直传 R2</h1>
+        <p class="lead">在这台设备上整理 PDF 或图片包。ZIP 和单张图片保留原格式；PDF 优先提取页内 JPEG，复杂页面才按 DPI 转换。点击导入后，页图由设备直接上传到 R2。</p>
+      </header>
+
+      <section class="privacy card">
+        <span class="privacy-mark" aria-hidden="true">✓</span>
+        <div><strong>漫画图片不会经过 VPS</strong><p>图片在本机整理。点击导入后，只有页图直传 R2；VPS 只接收一个包含封面和小缩略图的描述包，用于建立 LANraragi 条目。</p></div>
+      </section>
+
+      <section class="card form-card">
+        <label class="file-button" for="source-file">从“文件”App 选择 PDF、ZIP/CBZ 或图片</label>
+        <input id="source-file" type="file" accept=".pdf,.zip,.cbz,.png,.jpg,.jpeg,.webp,application/pdf,application/zip,image/png,image/jpeg,image/webp" />
+        <p id="file-name" class="muted">尚未选择文件</p>
+
+        <label for="pdf-dpi" class="setting-label">PDF 无法直接提取内嵌图时的渲染清晰度</label>
+        <select id="pdf-dpi">
+          <option value="300" selected>300 DPI（推荐）</option>
+          <option value="450">450 DPI（更清晰，内存占用更高）</option>
+          <option value="600">600 DPI（高分辨率，手机可能吃紧）</option>
+        </select>
+        <p class="hint">ZIP/图片包内的 JPEG、PNG、WebP 保留原始文件字节。PDF 中完整铺满页面的 JPEG 会尝试提取原始 JPEG 流；其他可识别的整页内嵌图保存为无损 PNG；只有复杂或矢量页面才按所选 DPI 渲染。</p>
+
+        <label for="parallelism" class="setting-label">同时转换页数</label>
+        <select id="parallelism">
+          <option value="2" selected>2 页并行（更快，适合当前图片尺寸）</option>
+          <option value="1">1 页（更省内存，Safari 不稳定时选这个）</option>
+        </select>
+        <p class="hint">转换和像素校验在独立线程运行；并行页面的图像数据会同时占用手机内存。</p>
+
+        <button id="convert" class="primary" disabled>开始本机整理</button>
+      </section>
+
+      <section id="progress-card" class="card progress-card" hidden>
+        <div class="progress-heading"><strong id="status">准备中</strong><span id="progress-count"></span></div>
+        <progress id="progress" max="1" value="0"></progress>
+        <p id="current-page" class="muted"></p>
+      </section>
+
+      <section id="result-card" class="card result-card" hidden>
+        <h2>转换完成</h2>
+        <div id="summary" class="summary"></div>
+        <p id="verification" class="verified"></p>
+        <details class="page-details">
+          <summary>查看每页尺寸和文件大小</summary>
+          <ol id="page-list"></ol>
+        </details>
+        <button id="download" class="primary">下载整理后的页图包</button>
+        <section class="upload-panel">
+          <label for="category-id" class="setting-label">添加到分类（可选）</label>
+          <select id="category-id"><option value="">不添加分类</option></select>
+          <p class="hint">R2 只保存页图（优先沿用原格式），原始 PDF/ZIP 不会上传。上面的本地 ZIP 仅供下载；VPS 只接收包含封面和小缩略图的描述包。</p>
+          <button id="upload-r2" class="secondary">创建 LANraragi 条目并上传到 R2</button>
+          <p id="r2-status" class="muted" aria-live="polite"></p>
+        </section>
+      </section>
+
+      <section id="error-card" class="card error-card" hidden>
+        <strong>处理没有完成</strong>
+        <p id="error-message"></p>
+      </section>
+
+      <footer>
+        <p>ZIP 中的 JPG/PNG/WebP 按原始字节传递，不重新编码。PDF 内嵌的整页 JPEG 尽量提取原始压缩流；其他内嵌图片以无损 PNG 保存。复杂/矢量页面才按所选 DPI 渲染为无损 WebP。页面图像数据只在浏览器内存中处理。</p>
+      </footer>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

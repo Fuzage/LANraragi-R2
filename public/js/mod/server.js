@@ -349,6 +349,7 @@ export function deleteArchive(arcId, callback) {
         .then((response) => response.json())
         .then((data) => {
             if (!data.success) {
+                if (data.error) throw new Error(data.error);
                 LRR.toast({
                     heading: I18N.MissingFileDeletion,
                     text: I18N.MissingFileDeletionError,
@@ -428,7 +429,12 @@ export function updateServerSideProgress(id, currentPage) {
         new LRR.ApiURL(`/api/archives/${id}/progress/${currentPage}`);
 
     return fetch(endpointUrl, { method: "PUT" })
-        .then((response) => (response.ok ? {code: response.status, data: response.json()} : { code: response.status, data: {success: 0, error: I18N.GenericReponseError} }))
+        .then(async (response) => ({
+            code: response.status,
+            data: response.ok
+                ? await response.json()
+                : { success: 0, error: I18N.GenericReponseError },
+        }))
         .then((response) => {
             const { code, data } = response;
             if (code === 423) {

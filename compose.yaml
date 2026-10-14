@@ -1,0 +1,31 @@
+services:
+  lanraragi:
+    image: ${LANRARAGI_IMAGE:-lanraragi-r2:local}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${LANRARAGI_PORT:-3000}:3000"
+    environment:
+      LRR_UID: ${LRR_UID:-9001}
+      LRR_GID: ${LRR_GID:-9001}
+      # Leave these empty to configure R2 through /config/r2.
+      # Nonempty environment values take precedence over web settings.
+      LRR_R2_ENABLED: ${LRR_R2_ENABLED:-}
+      LRR_R2_ENDPOINT: ${LRR_R2_ENDPOINT:-}
+      LRR_R2_BUCKET: ${LRR_R2_BUCKET:-}
+      LRR_R2_ACCESS_KEY_ID: ${LRR_R2_ACCESS_KEY_ID:-}
+      LRR_R2_SECRET_ACCESS_KEY: ${LRR_R2_SECRET_ACCESS_KEY:-}
+      LRR_R2_PUT_TTL: ${LRR_R2_PUT_TTL:-}
+      LRR_R2_GET_TTL: ${LRR_R2_GET_TTL:-}
+    volumes:
+      - lrr_content:/home/koyomi/lanraragi/content
+      - lrr_thumbnails:/home/koyomi/lanraragi/thumb
+      - lrr_database:/home/koyomi/lanraragi/database
+      - lrr_plugins:/home/koyomi/lanraragi/lib/LANraragi/Plugin/Sideloaded
+volumes:
+  lrr_content:
+  lrr_thumbnails:
+  lrr_database:
+  lrr_plugins:

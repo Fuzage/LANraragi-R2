@@ -33,6 +33,9 @@ use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 sub startup {
     my $self = shift;
 
+    # PDF.js ships its worker as an ES module; browsers reject it when served as octet-stream.
+    $self->types->type( mjs => 'text/javascript' );
+
     if ( !IS_UNIX ) {
         # Enable autoflush
         $| = 1;

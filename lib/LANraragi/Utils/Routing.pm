@@ -97,6 +97,10 @@ sub apply_routes {
     my $logged_in     = $public_routes->under('/')->to('login#logged_in');
     my $logged_in_api = $public_routes->under('/')->to('login#logged_in_api');
 
+    # R2 control-plane endpoints use the same logged-in/API-key gate as private APIs.
+    $logged_in_api->post('/api/r2/upload-plan')->to('api-r2#plan');
+    $logged_in_api->post('/api/r2/finalize')->to('api-r2#finalize');
+
     # No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
         $public_routes = $logged_in;
@@ -125,6 +129,9 @@ sub apply_routes {
     # Those routes are only accessible if user is logged in
     $logged_in->get('/config')->to('config#index');
     $logged_in->post('/config')->to('config#save_config');
+    $logged_in->get('/config/r2')->to('r2_settings#index');
+    $logged_in->post('/config/r2')->to('r2_settings#save');
+    $logged_in->post('/config/r2/check')->to('r2_settings#check');
 
     $logged_in->get('/config/plugins')->to('plugins#index');
     $logged_in->post('/config/plugins')->to('plugins#save_config');
@@ -141,6 +148,8 @@ sub apply_routes {
 
     $logged_in->get('/upload')->to('upload#index');
     $logged_in->post('/upload')->to('upload#process_upload');
+    $logged_in->get('/r2-import')->to(cb => sub ($c) { $c->redirect_to('/r2-import/index.html'); });
+    $logged_in->get('/r2-import/')->to(cb => sub ($c) { $c->redirect_to('/r2-import/index.html'); });
 
     $logged_in->get('/logs')->to('logging#index');
     $logged_in->get('/logs/general')->to('logging#print_general');

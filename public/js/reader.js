@@ -2,7 +2,7 @@
  * Functions to navigate in reader with the keyboard.
  * Also handles the thumbnail archive explorer.
  */
-import * as Server from "./mod/server.js";
+import * as Server from "./mod/server.js?r2=progress-20261011";
 import * as LRR from "./mod/common.js";
 import I18N from "i18n";
 import fscreen from "fscreen";
@@ -37,6 +37,7 @@ let state = {
 };
 let content;
 let pages;
+let pageRanges = null;
 let maxPage;
 let mangaMode;
 let doublePageMode;
@@ -524,7 +525,8 @@ export function removeTocSection() {
 export function loadImages() {
 
     const onLoad = (data) => {
-        pages = data;
+        pages = data.pages || data;
+        pageRanges = data.ranges || null;
         maxPage = pages.length - 1;
         $(".max-page").html(pages.length);
 
@@ -597,13 +599,15 @@ export function loadImages() {
                     .then(r => r.ok ? r.json() : Promise.reject())
             )
         ).then(results => {
-            onLoad(results.flatMap(r => r.pages));
+            const combined = results.flatMap(r => r.pages);
+            const ranges = results.flatMap(r => r.ranges || Array(r.pages.length).fill(null));
+            onLoad({ pages: combined, ranges });
         }).catch(() => LRR.showErrorToast(I18N.ReaderArchiveError))
             .finally(onFinally);
     }
     else {
         Server.callAPI(`/api/archives/${id}/files?force=${force}`, "GET", null, I18N.ReaderArchiveError,
-            (data) => onLoad(data.pages),
+            (data) => onLoad(data),
         ).finally(onFinally);
     }
 }
@@ -674,7 +678,7 @@ function initInfiniteScrollView() {
     $("body").addClass("infinite-scroll");
     $("#Map").remove();
     $("#img_doublepage").remove();
-    $(".reader-image").first().attr("src", pages[0]);
+    loadImage(0).then((src) => $(".reader-image").first().attr("src", src)).catch(() => {});
 
     // Disable other options that don't work with infinite scroll
     mangaMode = false;
@@ -696,12 +700,13 @@ function initInfiniteScrollView() {
         }
     }, { threshold: 0.5 });
 
-    pages.slice(1).forEach((source) => {
+    pages.slice(1).forEach((source, offset) => {
+        const pageIndex = offset + 1;
         const img = new Image();
-        img.id = `page-${pages.indexOf(source)}`;
+        img.id = `page-${pageIndex}`;
         img.height = 800;
         img.width = 600;
-        img.src = source;
+        loadImage(pageIndex).then((src) => { img.src = src; }).catch(() => {});
         $(img).addClass("reader-image");
         $("#display").append(img);
         observer.observe(img);
@@ -1324,19 +1329,26 @@ function updateMetadata() {
         $(".file-info").attr("title", `${filename} :: ${width} x ${height} :: ${size} KB - ${filenameDoublePage} :: ${widthDoublePage} x ${heightDoublePage} :: ${sizePre} KB`);
     }
 
-    // Update page numbers in the paginator
-    const newVal = showingSinglePage
-        ? currentPage + 1
-        : `${currentPage + 1} + ${currentPage + 2}`;
-    $(".current-page").each((_i, el) => $(el).html(newVal));
+    updatePaginatorPage();
 
     currentPageLoaded = true;
     $("#i3").removeClass("loading");
 }
 
+function updatePaginatorPage() {
+    // The reader can display either one page or a two-page spread. Keep the
+    // paginator in sync as soon as navigation changes state, without waiting
+    // for the remote R2 image to finish loading.
+    const newVal = showingSinglePage
+        ? currentPage + 1
+        : `${currentPage + 1} + ${Math.min(currentPage + 2, maxPage + 1)}`;
+    $(".current-page").each((_i, el) => $(el).html(newVal));
+}
+
 async function goToPage(page) {
     previousPage = currentPage;
     currentPage = Math.min(maxPage, Math.max(0, +page));
+    updatePaginatorPage();
 
     if (infiniteScroll) {
         $("#display img").get(currentPage).scrollIntoView({ block: "nearest" });
@@ -1405,7 +1417,7 @@ async function goToPage(page) {
         }, 500);
 
         // update full image link
-        $("#imgLink").attr("href", pages[currentPage]);
+        loadImage(currentPage).then((src) => $("#imgLink").attr("href", src));
 
         // scroll to top
         window.scrollTo(0, 0);
@@ -1455,15 +1467,19 @@ function preloadImages() {
 
 async function loadImage(index) {
     const src = pages[index];
+    const range = pageRanges?.[index];
+    const cacheKey = range ? `${src}#range=${range.offset}-${range.offset + range.bytes - 1}` : src;
 
-    if (!preloadedImg[src]) {
-        const res = await fetch(src);
-        preloadedSizes[index] = parseInt(res.headers.get("Content-Length") / 1024, 10);
-        const blob = await res.blob();
-        preloadedImg[src] = URL.createObjectURL(blob);
+    if (!preloadedImg[cacheKey]) {
+        const res = await fetch(src, range ? { headers: { Range: `bytes=${range.offset}-${range.offset + range.bytes - 1}` } } : {});
+        if (!res.ok || (range && res.status !== 206)) throw new Error("R2 页图范围读取失败");
+        preloadedSizes[index] = range ? Math.ceil(range.bytes / 1024) : parseInt(res.headers.get("Content-Length") / 1024, 10);
+        const responseBlob = await res.blob();
+        const blob = range ? new Blob([responseBlob], { type: range.contentType }) : responseBlob;
+        preloadedImg[cacheKey] = URL.createObjectURL(blob);
     }
 
-    return preloadedImg[src];
+    return preloadedImg[cacheKey];
 }
 
 function toggleFitMode(e) {
@@ -2012,6 +2028,7 @@ function handlePaginator() {
 }
 
 function getFilename(index) {
+    if (pageRanges?.[index]) return pageRanges[index].name;
     return new URLSearchParams(pages[index].split("?")[1]).get("path");
 }
 

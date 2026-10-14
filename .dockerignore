@@ -2,3 +2,16 @@ tools/_screenshots
 tools/Documentation
 tools/build/windows
 tools/build/homebrew
+**/node_modules
+.git
+.env
+.env.*
+**/*.env
+log
+content
+thumb
+database
+outputs
+**/*.ipa
+**/*.rdb
+**/*.log

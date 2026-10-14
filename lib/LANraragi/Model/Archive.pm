@@ -25,6 +25,7 @@ use LANraragi::Utils::Database   qw(invalidate_cache set_title set_tags set_summ
 use LANraragi::Utils::PageCache  qw(fetch put);
 use LANraragi::Utils::Redis      qw(redis_decode redis_encode);
 use LANraragi::Utils::Path       qw(unlink_path get_archive_path);
+use LANraragi::Model::R2         qw(get_archive_manifest delete_archive_objects);
 
 # get_title(id)
 #   Returns the title for the archive matching the given id.
@@ -376,6 +377,15 @@ sub delete_archive ($id) {
 
     my $redis    = LANraragi::Model::Config->get_redis;
     my $filename = get_archive_path( $redis, $id );
+    my $remote_manifest = get_archive_manifest($redis, $id);
+    if ($remote_manifest) {
+        eval { delete_archive_objects($remote_manifest); 1 } or do {
+            my $error = $@ || 'R2 删除失败。';
+            $redis->quit;
+            die $error;
+        };
+        $redis->del('LRR_R2_BATCH:' . $remote_manifest->{batchId});
+    }
     my $oldtags  = $redis->hget( $id, "tags" );
     $oldtags = redis_decode($oldtags);
 
@@ -441,7 +451,7 @@ sub delete_archive ($id) {
         return $status ? $filename : "0";
     }
 
-    return "0";
+    return $remote_manifest ? ($filename || $id) : "0";
 }
 
 1;

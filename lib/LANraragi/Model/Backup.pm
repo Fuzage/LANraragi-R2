@@ -138,7 +138,7 @@ sub build_backup_JSON {
 
         eval {
             my %hash = $redis->hgetall($id);
-            my ( $name, $title, $tags, $summary, $thumbhash, $stamps ) = @hash{qw(name title tags summary thumbhash stamps)};
+            my ( $name, $title, $tags, $summary, $thumbhash, $stamps, $r2_manifest_json ) = @hash{qw(name title tags summary thumbhash stamps r2_manifest)};
 
             ( $_ = redis_decode($_) ) for ( $name, $title, $tags, $summary );
             ( $_ = trim_CRLF($_) )    for ( $name, $title, $tags, $summary );
@@ -153,6 +153,13 @@ sub build_backup_JSON {
                 filename  => $name,
                 stamps    => $stamps
             );
+
+            # Keep the private R2 object map with archive metadata backups.
+            # It contains object keys only, never signed URLs or credentials.
+            if (defined $r2_manifest_json && length $r2_manifest_json) {
+                my $r2_manifest = eval { decode_json($r2_manifest_json) };
+                $arc{r2_manifest} = $r2_manifest if ref($r2_manifest) eq 'HASH';
+            }
 
             push @{ $backup{archives} }, \%arc;
         };
@@ -305,6 +312,16 @@ sub restore_from_JSON {
                 $redis->hset( $id, "stamps", $stamps );
             } else {
                 $redis->hset( $id, "stamps", "[]" );
+            }
+
+            if ( ref($archive->{"r2_manifest"}) eq 'HASH'
+                && $archive->{"r2_manifest"}{state}
+                && $archive->{"r2_manifest"}{state} eq 'ready'
+                && ref($archive->{"r2_manifest"}{pages}) eq 'ARRAY' ) {
+                $redis->hset( $id, "r2_manifest", encode_json($archive->{"r2_manifest"}) );
+                $redis->hset( $id, "pagecount", scalar @{$archive->{"r2_manifest"}{pages}} );
+                $redis->hset( $id, "arcsize", 0 + $archive->{"r2_manifest"}{sourceBytes} )
+                  if $archive->{"r2_manifest"}{sourceBytes};
             }
 
         }

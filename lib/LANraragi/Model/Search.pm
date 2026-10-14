@@ -30,7 +30,10 @@ sub do_search ( $filter, $category_id, $start, $sortkey, $sortorder, $newonly, $
     my $redis  = LANraragi::Model::Config->get_redis_search;
     my $logger = get_logger( "Search Engine", "lanraragi" );
 
-    unless ( $redis->exists("LAST_JOB_TIME") && ( $redis->exists("LRR_TANKGROUPED") || !$grouptanks ) ) {
+    # LAST_JOB_TIME is written only after the index transaction completes.
+    # An empty library has no LRR_TANKGROUPED set in Redis, which is valid;
+    # requiring that set would incorrectly report the search engine as unready.
+    unless ( $redis->exists("LAST_JOB_TIME") ) {
         $logger->warn("Search engine is not initialized yet. Please wait a few seconds.");
 
         # TODO - This is the only case where the API returns -1, but it's not really handled well clientside at the moment.
@@ -359,6 +362,14 @@ LUA
 
             # Remove the titles from the keys, which are stored as "title\x00id"
             @ordered = map { substr( $_, index( $_, "\x00" ) + 1 ) } @ordered;
+
+            # A stale or incomplete search index can contain archive IDs while
+            # LRR_TITLES is empty. That is an empty result set, not an error.
+            if ( !@ordered ) {
+                $logger->warn("Search index contains archive IDs but no title entries; returning no results.");
+                @filtered = ();
+                last;
+            }
 
             $logger->trace( "Example element from ordered list: " . $ordered[0] );
 

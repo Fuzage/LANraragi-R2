@@ -1,0 +1,36 @@
+.native-upload .ido { width: calc(100% - 36px); max-width: 1460px; margin: 0 auto; font-size: 14px !important; }
+.native-upload .upload-layout { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 40px; margin: 20px auto 0; align-items: start; }
+.native-upload .left-column, .native-upload .right-column { width: auto; display: block; min-width: 0; }
+.native-upload .native-upload-button { display: inline-flex; box-sizing: border-box; align-items: center; justify-content: center; flex-direction: column; gap: 9px; width: 225px; min-height: 92px; margin: 8px 0; padding: 12px 20px; }
+.native-upload .native-upload-button input { cursor: pointer; }
+.native-upload .native-upload-button input[type=file] { width: 100%; height: 100%; inset: 0; font-size: inherit; }
+.native-upload .upload-hint { font-size: 13px; line-height: 1.6; margin: 4px 0 16px; }
+.native-upload .r2-options { text-align: left; margin: 10px auto; max-width: 360px; line-height: 1.5; }
+.native-upload .r2-options summary { cursor: pointer; }
+.native-upload .r2-options label { display: block; margin: 12px 0 5px; }
+.native-upload #new-category-toggle { min-width: 90px; padding: 7px 12px; }
+.native-upload #new-category-form { text-align: left; margin: 14px 0; padding: 14px; border: 1px solid currentColor; border-radius: 6px; }
+.native-upload #new-category-form[hidden] { display: none; }
+.native-upload #new-category-name { box-sizing: border-box; width: 100%; margin: 8px 0 12px; padding: 8px; }
+.native-upload #new-category-form button { min-width: 90px; }
+.native-upload #new-category-status { font-size: 13px; overflow-wrap: anywhere; }
+.native-upload .upload-result-table { width: 100%; margin: auto; border-collapse: collapse; text-align: center; font-size: 14px; }
+.native-upload .upload-result-table td { padding: 15px 12px; vertical-align: middle; overflow-wrap: anywhere; }
+.native-upload .upload-result-table td:first-child { width: 48%; }
+.native-upload .r2-upload-row { border-bottom: 1px solid #8885; }
+.native-upload .r2-upload-badge { display: inline-block; border: 1px solid currentColor; font-size: 11px; border-radius: 4px; padding: 1px 5px; margin-right: 7px; }
+.native-upload .r2-upload-status { font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.native-upload .r2-upload-row progress { width: 100%; height: 10px; margin-top: 8px; }
+.native-upload .r2-edit-metadata { display: inline-block; min-width: 130px; margin: 3px 0 8px; text-decoration: none; }
+.native-upload .r2-page-details { text-align: left; margin-top: 9px; font-size: 12px; }
+.native-upload .r2-page-details summary { cursor: pointer; text-align: center; }
+.native-upload .r2-page-details ol { max-height: 250px; overflow-y: auto; padding: 10px 0; }
+.native-upload .r2-page-details li { margin: 8px 0; overflow-wrap: anywhere; }
+.native-upload .r2-upload-error { color: #ffb4b4; }
+.native-upload #r2-loading:empty { display: none; }
+@media (max-width: 850px) {
+  .native-upload .upload-layout { grid-template-columns: 1fr; gap: 22px; }
+  .native-upload .upload-result-table td { padding: 12px 6px; }
+  .native-upload .ido { width: calc(100% - 24px); }
+  .native-upload #progressCount, .native-upload #progressTotal { font-size: 17px; }
+}

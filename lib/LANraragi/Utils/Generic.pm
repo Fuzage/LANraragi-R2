@@ -377,9 +377,9 @@ sub filter_hash_by_keys {
 # Automatically cleans up the lock and connection after execution.
 sub exec_with_lock {
 
-    my ( $mojo, $lock_name, $operation, $resource_id, $func ) = @_;
+    my ( $mojo, $lock_name, $operation, $resource_id, $func, $ttl ) = @_;
 
-    my ( $acquired, $response ) = exec_with_lock_pure( [$lock_name], $func );
+    my ( $acquired, $response ) = exec_with_lock_pure( [$lock_name], $func, undef, $ttl // 10 );
 
     if ( !$acquired ) {
         $mojo->render(

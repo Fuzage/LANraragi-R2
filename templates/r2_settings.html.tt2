@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R2 存储设置</title>
+    <link rel="stylesheet" href="[% c.url_for('/css/lrr.css') %]">
+    <link rel="stylesheet" href="[% c.url_for('/css/config.css') %]">
+    [% csshead %]
+    <script type="module" src="[% c.url_for('/js/r2-settings.js?v=1') %]"></script>
+</head>
+<body><main class="ido" style="max-width:860px;margin:24px auto;padding:20px">
+    <h1>R2 存储设置</h1>
+    <p>页图在设备本地整理，整本直传 R2；LANraragi 保存档案、元数据和小缩略图。</p>
+    <p>非空环境变量优先，对应字段显示为只读。访问密钥留空时保留原值，输入新值即可更换。</p>
+    <form id="r2-settings" autocomplete="off">
+        <input type="hidden" name="csrf" value="[% csrf | html %]">
+        <table style="width:100%;border-spacing:12px"><tbody>
+            <tr><th><label for="enabled">启用 R2</label></th><td><select id="enabled" name="enabled" [% IF managed.enabled %]disabled[% END %]><option value="0" [% IF r2.enabled != '1' %]selected[% END %]>关闭</option><option value="1" [% IF r2.enabled == '1' %]selected[% END %]>开启</option></select>[% IF managed.enabled %] 由 LRR_R2_ENABLED 设置[% END %]</td></tr>
+            <tr><th><label for="endpoint">S3 Endpoint</label></th><td><input style="width:100%" id="endpoint" name="endpoint" type="url" value="[% r2.endpoint | html %]" placeholder="https://ACCOUNT_ID.r2.cloudflarestorage.com" [% IF managed.endpoint %]readonly[% END %]><small>Cloudflare R2 提供的 S3 API 地址，不是 r2.dev 公共地址或自定义下载域名。</small></td></tr>
+            <tr><th><label for="bucket">桶名</label></th><td><input id="bucket" name="bucket" value="[% r2.bucket | html %]" maxlength="63" [% IF managed.bucket %]readonly[% END %]></td></tr>
+            <tr><th><label for="access_key">Access Key ID</label></th><td><input style="width:100%" id="access_key" name="access_key" type="password" autocomplete="new-password" maxlength="256" placeholder="[% IF managed.access_key %]由环境变量设置[% ELSIF r2.access_saved %]已保存，留空保留[% ELSE %]填写 R2 S3 访问密钥 ID[% END %]" [% IF managed.access_key %]disabled[% END %]></td></tr>
+            <tr><th><label for="secret_key">Secret Access Key</label></th><td><input style="width:100%" id="secret_key" name="secret_key" type="password" autocomplete="new-password" maxlength="256" placeholder="[% IF managed.secret_key %]由环境变量设置[% ELSIF r2.secret_saved %]已保存，留空保留[% ELSE %]填写 R2 S3 密钥[% END %]" [% IF managed.secret_key %]disabled[% END %]></td></tr>
+            <tr><th><label for="put_ttl">上传链接有效期</label></th><td><input id="put_ttl" name="put_ttl" type="number" min="60" max="604800" value="[% r2.put_ttl | html %]" [% IF managed.put_ttl %]readonly[% END %]> 秒</td></tr>
+            <tr><th><label for="get_ttl">阅读链接有效期</label></th><td><input id="get_ttl" name="get_ttl" type="number" min="60" max="604800" value="[% r2.get_ttl | html %]" [% IF managed.get_ttl %]readonly[% END %]> 秒</td></tr>
+        </tbody></table>
+        <button class="stdbtn" type="submit">保存 R2 设置</button>
+        <button class="stdbtn" id="r2-check" type="button">检查已保存的连接</button>
+        <p id="r2-status" role="status" aria-live="polite"></p>
+    </form>
+    <h2>桶的 CORS 规则</h2>
+    <p>将下面规则粘贴到 Cloudflare R2 的桶设置中。这里使用当前网页的来源；多个网页来源可以一起加入 AllowedOrigins。</p>
+    <textarea id="r2-cors" readonly rows="14" style="width:100%;box-sizing:border-box" aria-label="CORS 规则"></textarea>
+    <p>先在 LANraragi 安全设置中启用管理员密码，并用 HTTPS 访问设置页。网页设置保存在持久化数据库卷中；密钥不会返回到网页或配置导出中。</p>
+    <p>更换账号或桶后，已有 R2 档案仍引用原来的对象。请先迁移对象，再更改配置。</p>
+    <p><a class="stdbtn" href="[% c.url_for('/config') %]">返回管理设置</a> <a class="stdbtn" href="[% c.url_for('/upload') %]">上传漫画</a></p>
+</main></body></html>

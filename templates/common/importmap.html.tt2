@@ -1,6 +1,8 @@
 <script type="importmap">
     {
         "imports": {
+            "[% c.url_for("/js/mod/server.js") %]": "[% c.url_for("/js/mod/server.js?r2=delete-20261012") %]",
+            "[% c.url_for("/js/mod/server.js?r2=progress-20261011") %]": "[% c.url_for("/js/mod/server.js?r2=delete-20261012") %]",
             "i18n": "[% c.url_for("/js/i18n.js?$version") %]",
             "fscreen": "[% c.url_for("/js/$version/vendor/fscreen.esm.js") %]",
 

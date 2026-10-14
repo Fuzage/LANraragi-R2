@@ -38,7 +38,7 @@ use constant IS_UNIX => ( $Config{osname} ne 'MSWin32' );
 # You can also specify tags to add to the metadata for the processed file before autoplugin is ran. (if it's enabled)
 #
 # Returns an HTTP status code, the ID and title of the file, and a status message.
-sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
+sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary, $skip_plugins = 0 ) {
 
     my ( $filename, $dirs, $suffix ) = fileparse( $tempfile, qr/\.[^.]*/ );
     $filename = $filename . $suffix;
@@ -177,13 +177,16 @@ sub handle_incoming_file ( $tempfile, $catid, $tags, $title, $summary ) {
     my $thumbdir = LANraragi::Model::Config->get_thumbdir;
     extract_thumbnail( $thumbdir, $id, 1, 1, 1 );
 
-    $logger->debug("Running autoplugin on newly uploaded file $id...");
+    my $successmsg = "";
+    unless ($skip_plugins) {
+        $logger->debug("Running autoplugin on newly uploaded file $id...");
 
-    my ( $succ, $fail, $addedtags, $newtitle ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
-    my $successmsg = "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added. ";
+        my ( $succ, $fail, $addedtags, $newtitle ) = LANraragi::Model::Plugins::exec_enabled_plugins_on_file($id);
+        $successmsg = "$succ Plugins used successfully, $fail Plugins failed, $addedtags tags added. ";
 
-    if ( $newtitle ne "" ) {
-        $name = $newtitle;
+        if ( $newtitle ne "" ) {
+            $name = $newtitle;
+        }
     }
 
     if ($catid) {

@@ -22,6 +22,7 @@ use LANraragi::Utils::Archive qw(get_filelist);
 use LANraragi::Utils::Redis   qw(redis_decode);
 use LANraragi::Utils::Resizer qw(get_resizer);
 use LANraragi::Utils::Path    qw(get_archive_path);
+use LANraragi::Model::R2      qw(is_enabled sign_get_url get_archive_manifest);
 
 our $resampler = get_resizer();
 
@@ -48,6 +49,25 @@ sub build_reader_JSON ( $self, $id, $force ) {
     # Filenames are stored as they are on the OS, so no decoding!
     my $redis   = LANraragi::Model::Config->get_redis;
     my $archive = get_archive_path( $redis, $id );
+
+    # Remote archives keep a tiny local descriptor for LANraragi metadata and
+    # thumbnails. Their ordered reading pages are served directly from R2.
+    my $remote_manifest = get_archive_manifest($redis, $id);
+    if ( $remote_manifest && $remote_manifest->{state} eq 'ready' ) {
+        die 'R2 page delivery is disabled or not configured.' unless is_enabled();
+        if ($remote_manifest->{bundleKey}) {
+            my $url = sign_get_url($remote_manifest->{bundleKey});
+            my @ranges = map {{ offset => 0 + $_->{offset}, bytes => 0 + $_->{bytes},
+              name => $_->{name}, contentType => $_->{contentType} }} @{$remote_manifest->{pages}};
+            $redis->hset( $id, 'pagecount', scalar @ranges );
+            $redis->quit();
+            return { pages => [map { $url } @ranges], ranges => \@ranges, r2Bundle => 1 };
+        }
+        my @remote_pages = map { sign_get_url($_->{key}) } @{$remote_manifest->{pages}};
+        $redis->hset( $id, 'pagecount', scalar @remote_pages );
+        $redis->quit();
+        return { pages => \@remote_pages, r2 => 1 };
+    }
 
     # Parse archive to get its list of images
     my @images = get_filelist($archive, $id);

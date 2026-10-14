@@ -27,7 +27,7 @@
     <script src="[% c.url_for("/js/vendor/jquery.contextMenu.min.js") %]" type="text/JAVASCRIPT"></script>
 
     <script type="module">
-        import * as Reader from "[% c.url_for("/js/reader.js?$version") %]";
+        import * as Reader from "[% c.url_for("/js/reader.js?$version&r2=range-bundle-20261012") %]";
 
         const trackProgressLocally = "[% use_local %]" === "1";
         const authenticateProgress = "[% auth_progress %]" === "1";
