@@ -2,6 +2,7 @@ package LANraragi::Controller::R2Settings;
 use v5.36;
 use utf8;
 use Mojo::Base 'Mojolicious::Controller';
+use Mojo::UserAgent;
 use LANraragi::Model::R2;
 use LANraragi::Model::R2Settings;
 use LANraragi::Utils::Generic qw(generate_themes_header);
@@ -41,13 +42,26 @@ sub check ($self) {
     my $cfg;
     eval { $cfg = LANraragi::Model::R2::config(); 1 } or return $self->render(json => { success => 0, message => '请先保存完整的配置并启用 R2。' });
     my $url = LANraragi::Model::R2::presign('GET', '', undef, 60, $cfg, { 'list-type' => '2', 'max-keys' => '1' });
+    $self->res->headers->cache_control('no-store');
     $self->render_later;
-    Mojo::UserAgent->new->connect_timeout(10)->request_timeout(20)->max_response_size(65536)->get_p($url)->then(sub ($tx) {
+    # An asynchronous request does not retain its UserAgent. Keep it alive on
+    # this controller until completion, or DESTROY closes the pending socket.
+    my $ua = Mojo::UserAgent->new->connect_timeout(10)->request_timeout(20)->max_response_size(65536);
+    $self->stash(r2_check_ua => $ua);
+    $ua->get_p($url)->then(sub ($tx) {
+        delete $self->stash->{r2_check_ua};
         my $res = $tx->result;
         my $ok = $res->is_success;
         $self->render(json => { success => $ok ? 1 : 0, message => $ok ? '连接成功，已确认可以读取该桶。请继续配置 CORS，并用一本漫画验证上传和阅读。' : '连接失败（HTTP ' . ($res->code // 0) . '）。请检查 Endpoint、桶名、密钥和该桶的读写权限。' });
     })->catch(sub ($error) {
-        $self->render(json => { success => 0, message => '无法连接 R2，请检查 Endpoint 和服务器网络。' });
+        delete $self->stash->{r2_check_ua};
+        # Never expose the raw exception: it may contain a signed URL.
+        my $message = $error =~ /timed?\s*out|timeout/i
+            ? '连接 R2 超时，请检查服务器网络和 Endpoint。'
+            : $error =~ /SSL|TLS|certificate/i
+            ? 'R2 TLS 连接失败，请检查服务器证书信任、系统时间和网络。'
+            : '无法连接 R2，请检查 Endpoint 和服务器网络。';
+        $self->render(json => { success => 0, message => $message });
     });
 }
 1;
