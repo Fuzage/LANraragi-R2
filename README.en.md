@@ -10,7 +10,7 @@ Connect an iPhone or Android device to this server for a **local bookshelf, R2 r
 
 **[Visit the LanR2der project page to choose an iOS or Android version](https://github.com/Fuzage/LanR2der)**
 
-iOS requires **26.0+**; the IPA is unsigned and must be signed before installation. Android requires **9.0 (API 28)+**. Both apps ask you to enter your own server address and API Key on first launch. Setup instructions are in the app repository.
+iOS requires **26.0+**; the IPA is unsigned and must be signed before installation. Android requires **9.0 (API 28)+**. Both apps ask you to enter your own server address and API Key on first launch. The platforms use independent version numbers; open the app project page and choose the release for your device.
 
 ---
 
