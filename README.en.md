@@ -2,15 +2,15 @@
 
 [中文](README.md) · [English](README.en.md)
 
-## Companion iOS app: LanR2der
+## Companion mobile apps: LanR2der
 
 <a href="https://github.com/Fuzage/LanR2der"><img src="https://raw.githubusercontent.com/Fuzage/LanR2der/main/assets/AppIcon-transparent.png" alt="LanR2der" width="72"></a>
 
-Connect your iPhone to this server for a **local bookshelf, R2 reading, whole-book offline downloads, in-app uploads, metadata/category editing, and PIN/Face ID privacy controls**. Enter your own server address and API Key on first launch.
+Connect an iPhone or Android device to this server for a **local bookshelf, R2 reading, whole-book offline downloads, in-app uploads, metadata/category editing and privacy controls**. Enter your own server address and API Key on first launch.
 
-**[Explore LanR2der](https://github.com/Fuzage/LanR2der) · [Download the latest IPA](https://github.com/Fuzage/LanR2der/releases/latest)**
+**[Explore LanR2der](https://github.com/Fuzage/LanR2der) · [Download the latest iOS IPA](https://github.com/Fuzage/LanR2der/releases/latest) · [Download Android APK (1.4.5)](https://github.com/Fuzage/LanR2der/releases/download/android-v1.4.5/LanR2der-Android-1.4.5.apk)**
 
-Requires **iOS 26.0+**. The IPA is unsigned and must be signed before installation. Setup and usage instructions are available in the app repository.
+iOS requires **26.0+**; the IPA is unsigned and must be signed before installation. Android requires **9.0 (API 28)+**. Both apps ask you to enter your own server address and API Key on first launch. Setup instructions are in the app repository.
 
 ---
 
