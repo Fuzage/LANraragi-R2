@@ -8,7 +8,7 @@
 
 Connect an iPhone or Android device to this server for a **local bookshelf, R2 reading, whole-book offline downloads, in-app uploads, metadata/category editing and privacy controls**. Enter your own server address and API Key on first launch.
 
-**[Explore LanR2der](https://github.com/Fuzage/LanR2der) · [Download the latest iOS IPA](https://github.com/Fuzage/LanR2der/releases/latest) · [Download Android APK (1.4.5)](https://github.com/Fuzage/LanR2der/releases/download/android-v1.4.5/LanR2der-Android-1.4.5.apk)**
+**[Visit the LanR2der project page to choose an iOS or Android version](https://github.com/Fuzage/LanR2der)**
 
 iOS requires **26.0+**; the IPA is unsigned and must be signed before installation. Android requires **9.0 (API 28)+**. Both apps ask you to enter your own server address and API Key on first launch. Setup instructions are in the app repository.
 
