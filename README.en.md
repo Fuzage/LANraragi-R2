@@ -12,6 +12,8 @@ Connect an iPhone or Android device to this server for a **local bookshelf, R2 r
 
 iOS requires **26.0+**; the IPA is unsigned and must be signed before installation. Android requires **9.0 (API 28)+**. Both apps ask you to enter your own server address and API Key on first launch. The platforms use independent version numbers; open the app project page and choose the release for your device.
 
+Current clients support **bookshelf layout presets**: create, switch, overwrite, or refresh a preset from the small button at the upper-left of the bookshelf. The tree and ordering are stored in this LANraragi instance's Redis database and shared by iOS and Android devices connected to the same instance. Update to an image containing `/api/lanr2der/shelf-presets` to use this feature. Switching or refreshing replaces the local arrangement; first connection never overwrites a local shelf automatically. Keep the existing `database` volume when updating.
+
 ---
 
 A community modification of [LANraragi 0.9.81](https://github.com/Difegue/LANraragi/tree/v.0.9.81) that adds **direct Cloudflare R2 uploads and page-range reading** to the native upload page and web reader. Each deployment uses its owner's R2 account, private bucket and S3 credentials.

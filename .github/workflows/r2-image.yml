@@ -30,6 +30,7 @@ jobs:
       - name: Check Perl configuration and browser scripts
         run: |
           docker run --rm --entrypoint /bin/sh lanraragi-r2:check -c 'cd /home/koyomi/lanraragi && perl -Mlocal::lib=/home/koyomi/perl5 -Ilib -c lib/LANraragi/Controller/R2Settings.pm'
+          docker run --rm --entrypoint /bin/sh lanraragi-r2:check -c 'cd /home/koyomi/lanraragi && perl -Mlocal::lib=/home/koyomi/perl5 -Ilib -c lib/LANraragi/Controller/Api/ShelfPresets.pm'
           docker run --rm --entrypoint /bin/sh -v "$PWD/tests:/checks:ro" lanraragi-r2:check -c 'cd /home/koyomi/lanraragi && perl -Mlocal::lib=/home/koyomi/perl5 -Ilib /checks/r2-settings.t'
           docker run --rm --entrypoint /bin/sh -v "$PWD/tests:/checks:ro" lanraragi-r2:check -c 'cd /home/koyomi/lanraragi && perl -Mlocal::lib=/home/koyomi/perl5 -Ilib /checks/r2-connection.t'
       - name: Check settings JavaScript
