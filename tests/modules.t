@@ -21,6 +21,7 @@ my @modules = (
     "LANraragi::Controller::Api::Search",        "LANraragi::Controller::Api::Category",
     "LANraragi::Controller::Api::Database",      "LANraragi::Controller::Api::Shinobu",
     "LANraragi::Controller::Api::Minion",        "LANraragi::Controller::Api::Other",
+    "LANraragi::Api::Shelfpresets",
     "LANraragi::Controller::Backup",             "LANraragi::Controller::Batch",
     "LANraragi::Controller::Config",             "LANraragi::Controller::Edit",
     "LANraragi::Controller::Index",              "LANraragi::Controller::Logging",
