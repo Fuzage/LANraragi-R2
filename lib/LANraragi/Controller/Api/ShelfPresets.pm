@@ -14,6 +14,10 @@ sub _timestamp () {
     return gmtime($seconds)->datetime . sprintf('.%06dZ', $microseconds);
 }
 
+sub _unlock ($redis, $key, $token) {
+    $redis->eval("if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) end return 0", 1, $key, $token);
+}
+
 sub _all ($self) {
     my $redis = LANraragi::Model::Config->get_redis;
     my %raw = $redis->hgetall($KEY);
@@ -88,17 +92,24 @@ sub save ($self) {
     return $self->render(json=>{success=>0,error=>'预设名称需要 1 到 80 个字符。'},status=>400)
       if defined($name) && (ref($name) || $name !~ /\S/ || length($name) > 80);
     my $redis = LANraragi::Model::Config->get_redis;
+    my $lock_key = 'LRR_LANR2DER_SHELF_PRESET_LOCK:' . $id;
+    my $token = join(':', $$, rand(), time());
+    unless ($redis->set($lock_key, $token, 'NX', 'EX', 30)) {
+        $redis->quit;
+        return $self->render(json=>{success=>0,error=>'这个预设正在其他设备保存，请稍后再试。'},status=>409);
+    }
     my $raw = $redis->hget($KEY, $id);
-    unless ($raw) { $redis->quit; return $self->render(json=>{success=>0,error=>'找不到这个书架预设。'},status=>404); }
+    unless ($raw) { _unlock($redis,$lock_key,$token); $redis->quit; return $self->render(json=>{success=>0,error=>'找不到这个书架预设。'},status=>404); }
     my $preset = eval { decode_json($raw) };
     if (($body->{expectedUpdatedAt} // '') ne ($preset->{updatedAt} // '')) {
-        $redis->quit;
+        _unlock($redis,$lock_key,$token); $redis->quit;
         return $self->render(json=>{success=>0,error=>'这个预设已在其他设备更新，请先刷新再保存。',preset=>$preset},status=>409);
     }
     $preset->{nodes} = $body->{nodes};
     $preset->{name} = $name if defined $name;
     $preset->{updatedAt} = _timestamp();
     $redis->hset($KEY,$id,encode_json($preset));
+    _unlock($redis,$lock_key,$token);
     $redis->quit;
     return $self->render(json=>{success=>1,preset=>$preset});
 }
