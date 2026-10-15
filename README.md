@@ -10,7 +10,7 @@
 
 **[进入 LanR2der 项目页，选择 iOS 或 Android 版本](https://github.com/Fuzage/LanR2der)**
 
-iOS 要求 **26.0+**，IPA 未签名，需要自行签名安装。Android 要求 **9.0（API 28）+**。两种客户端首次打开都填写自己的服务器地址和 API Key；客户端仓库提供详细配置说明。
+iOS 要求 **26.0+**，IPA 未签名，需要自行签名安装。Android 要求 **9.0（API 28）+**。两种客户端首次打开都填写自己的服务器地址和 API Key。两个平台独立维护版本号；进入客户端项目页后，按设备选择对应 Release。
 
 ---
 
