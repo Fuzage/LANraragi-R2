@@ -2,15 +2,15 @@
 
 [中文](README.md) · [English](README.en.md)
 
-## 配套 iOS 客户端：LanR2der
+## 配套移动客户端：LanR2der
 
 <a href="https://github.com/Fuzage/LanR2der"><img src="https://raw.githubusercontent.com/Fuzage/LanR2der/main/assets/AppIcon-transparent.png" alt="LanR2der" width="72"></a>
 
-在 iPhone 上连接本修改版书库，使用**拟物书架、R2 阅读、整本离线下载、App 内上传、元数据与分类编辑，以及隐私密码和 Face ID**。首次打开填写自己的服务器地址和 API Key。
+在 iPhone 或 Android 手机上连接本修改版书库，使用**拟物书架、R2 阅读、整本离线下载、App 内上传、元数据与分类编辑，以及隐私保护**。首次打开填写自己的服务器地址和 API Key。
 
-**[了解 LanR2der](https://github.com/Fuzage/LanR2der) · [下载最新版 IPA](https://github.com/Fuzage/LanR2der/releases/latest)**
+**[了解 LanR2der](https://github.com/Fuzage/LanR2der) · [下载最新版 iOS IPA](https://github.com/Fuzage/LanR2der/releases/latest) · [下载 Android APK（1.4.5）](https://github.com/Fuzage/LanR2der/releases/download/android-v1.4.5/LanR2der-Android-1.4.5.apk)**
 
-要求 **iOS 26.0+**；IPA 未签名，需要自行签名安装。详细配置和使用方式见客户端仓库。
+iOS 要求 **26.0+**，IPA 未签名，需要自行签名安装。Android 要求 **9.0（API 28）+**。两种客户端首次打开都填写自己的服务器地址和 API Key；客户端仓库提供详细配置说明。
 
 ---
 
