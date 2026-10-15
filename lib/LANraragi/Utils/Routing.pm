@@ -100,10 +100,10 @@ sub apply_routes {
     # R2 control-plane endpoints use the same logged-in/API-key gate as private APIs.
     $logged_in_api->post('/api/r2/upload-plan')->to('api-r2#plan');
     $logged_in_api->post('/api/r2/finalize')->to('api-r2#finalize');
-    $logged_in_api->get('/api/lanr2der/shelf-presets')->to('api-shelf-presets#list');
-    $logged_in_api->post('/api/lanr2der/shelf-presets')->to('api-shelf-presets#create');
-    $logged_in_api->get('/api/lanr2der/shelf-presets/:id')->to('api-shelf-presets#get');
-    $logged_in_api->put('/api/lanr2der/shelf-presets/:id')->to('api-shelf-presets#save');
+    $logged_in_api->get('/api/lanr2der/shelf-presets')->to('api-shelfpresets#list');
+    $logged_in_api->post('/api/lanr2der/shelf-presets')->to('api-shelfpresets#create');
+    $logged_in_api->get('/api/lanr2der/shelf-presets/:id')->to('api-shelfpresets#get');
+    $logged_in_api->put('/api/lanr2der/shelf-presets/:id')->to('api-shelfpresets#save');
 
     # No-Fun Mode locks the base routes behind login as well
     if ( $self->LRR_CONF->enable_nofun ) {
